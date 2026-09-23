@@ -14,6 +14,7 @@
       <button class="nav active" data-view="builder">Создать задачу</button>
       <button class="nav" data-view="catalog">Каталог <i id="taskCount">0</i></button>
       <button class="nav" data-view="decisions">Отклики <i id="proposalCount">0</i></button>
+      <button class="nav" data-view="about">О нас</button>
     </nav>
     <div class="language-tools"><span class="demo"><i></i> Демо-режим</span><select id="languageSelect" aria-label="Язык интерфейса"><option value="kk" lang="kk">Қазақша</option><option value="en" lang="en">English</option><option value="ru" lang="ru" selected>Русский</option></select></div>
   </header>
@@ -86,9 +87,9 @@
       <header class="hero"><div><p class="eyebrow">Решение остаётся за человеком</p><h1>Отклики команд</h1><p class="sub">Сравнивайте идеи и принимайте решение вручную. TaskForge никого не назначает автоматически.</p></div></header>
       <div id="decisionList" class="decision-list"></div>
     </section>
-  </main>
-
-  <footer class="site-footer">
+    <section class="view" id="aboutView" aria-labelledby="aboutTitle">
+      <header class="hero"><div><p class="eyebrow">Команда проекта TaskForge</p><h1 id="aboutTitle">О нас</h1></div></header>
+      <div class="about-panel panel">
     <div class="footer-row">
       <div><strong class="footer-team">Zummer</strong><p>Команда проекта TaskForge</p></div>
       <div class="footer-contact"><span>Связаться с нами</span><a href="mailto:kasanovaaruzan74@gmail.com">kasanovaaruzan74@gmail.com</a></div>
@@ -113,26 +114,29 @@
         <p>При изменении работы сервиса мы обновим эту политику и дату её редакции на этой странице.</p>
       </div>
     </details>
-  </footer>
+      </div>
+    </section>
+  </main>
 
   <dialog id="taskDialog"><button class="close" aria-label="Закрыть">×</button><div id="dialogBody"></div></dialog>
   <div class="toast" id="toast"><b>✓</b><span><strong id="toastTitle"></strong><small id="toastText"></small></span></div>
   <style>
     .language-tools { display:flex; align-items:center; justify-content:flex-end; gap:12px; }
     #languageSelect { width:auto; min-width:110px; }
-    .site-footer { width:min(1420px,100%); margin:0 auto; padding:28px 4vw 36px; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
+    .about-panel { padding:28px; color:var(--muted); font-size:.9rem; }
     .footer-row { display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap; }
     .footer-team { color:var(--pink, #ff5fa2); font-size:1.5rem; letter-spacing:-.04em; }
     .footer-row p { margin:4px 0 0; }
     .footer-contact { display:grid; gap:5px; }
-    .site-footer a { color:var(--ink); text-underline-offset:4px; overflow-wrap:anywhere; }
-    .site-footer a:hover, .privacy-policy summary:hover { color:var(--pink, #ff5fa2); }
+    .about-panel a { color:var(--ink); text-underline-offset:4px; overflow-wrap:anywhere; }
+    .about-panel a:hover, .privacy-policy summary:hover { color:var(--pink, #ff5fa2); }
     .privacy-policy { margin-top:24px; padding-top:18px; border-top:1px solid var(--line); }
     .privacy-policy summary { width:fit-content; cursor:pointer; color:var(--ink); }
     .privacy-content { max-width:850px; margin-top:22px; line-height:1.75; }
     .privacy-content h2 { margin:24px 0 8px; color:var(--ink); font-size:1rem; }
     .privacy-date { font-size:.75rem; }
-    @media (max-width:800px) { .site-footer { padding:26px 19px 110px; } }
+    @media (max-width:800px) { .about-panel { padding:22px 17px; } }
+    @media (max-width:560px) { .topbar nav { gap:0; } .topbar .nav { padding:8px 5px; font-size:.68rem; } }
     @media (min-width:801px) and (max-width:1150px) { .language-tools .demo { display:none; } }
   </style>
   <script>
@@ -195,6 +199,7 @@
       ['Ошибка','Қате','Error'],['Ошибка запроса','Сұрау қатесі','Request failed'],['Сервер недоступен','Сервер қолжетімсіз','Server unavailable'],['Запустите проект командой python app.py.','Жобаны python app.py командасымен іске қосыңыз.','Start the project with python app.py.']
     ];
     translations.push(
+      ['О нас','Біз туралы','About us'],
       ['Команда проекта TaskForge','TaskForge жобасының командасы','The team behind TaskForge'],
       ['Связаться с нами','Бізбен байланысу','Contact us'],
       ['Политика конфиденциальности','Құпиялық саясаты','Privacy policy'],

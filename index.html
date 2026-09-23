@@ -88,11 +88,51 @@
     </section>
   </main>
 
+  <footer class="site-footer">
+    <div class="footer-row">
+      <div><strong class="footer-team">Zummer</strong><p>Команда проекта TaskForge</p></div>
+      <div class="footer-contact"><span>Связаться с нами</span><a href="mailto:kasanovaaruzan74@gmail.com">kasanovaaruzan74@gmail.com</a></div>
+    </div>
+    <details class="privacy-policy" id="privacy-policy">
+      <summary>Политика конфиденциальности</summary>
+      <div class="privacy-content">
+        <p class="privacy-date">Дата обновления: 23 сентября 2026 г.</p>
+        <p>Эта политика описывает обработку данных в текущей демоверсии TaskForge команды Zummer.</p>
+        <h2>Какие данные обрабатываются</h2>
+        <p>Сервис получает введённые вами описания задач, контактные данные, сведения о командах, идеи решений, планы, сроки, ссылки на прототипы и решения по откликам. Эти данные используются для подготовки карточек, оценки их полноты, публикации задач и работы с предложениями команд.</p>
+        <h2>Публикация и доступ</h2>
+        <p>Опубликованные задачи, включая контактные данные, и отправленные отклики доступны посетителям демоверсии. В ней нет личных кабинетов с ограничением доступа. Не размещайте конфиденциальные сведения и чужие персональные данные без разрешения.</p>
+        <h2>Хранение данных</h2>
+        <p>Задачи и отклики хранятся в памяти сервера до его перезапуска. Выбранный язык сохраняется в браузере до очистки данных сайта. Сервер также выводит технические журналы запросов; срок их хранения зависит от среды запуска.</p>
+        <h2>Браузер и внешние сервисы</h2>
+        <p>Демоверсия не использует рекламные или аналитические cookies. Описания задач обрабатываются на сервере приложения без отправки во внешний AI-сервис. При переходе по внешним ссылкам или отправке письма действуют правила соответствующего сайта или почтового сервиса.</p>
+        <h2>Вопросы и запросы о данных</h2>
+        <p>Чтобы уточнить, исправить или удалить относящиеся к вам данные, напишите команде Zummer. Укажите задачу или отклик и суть запроса, не отправляя лишние персональные данные.</p>
+        <a href="mailto:kasanovaaruzan74@gmail.com">kasanovaaruzan74@gmail.com</a>
+        <h2>Изменения политики</h2>
+        <p>При изменении работы сервиса мы обновим эту политику и дату её редакции на этой странице.</p>
+      </div>
+    </details>
+  </footer>
+
   <dialog id="taskDialog"><button class="close" aria-label="Закрыть">×</button><div id="dialogBody"></div></dialog>
   <div class="toast" id="toast"><b>✓</b><span><strong id="toastTitle"></strong><small id="toastText"></small></span></div>
   <style>
     .language-tools { display:flex; align-items:center; justify-content:flex-end; gap:12px; }
     #languageSelect { width:auto; min-width:110px; }
+    .site-footer { width:min(1420px,100%); margin:0 auto; padding:28px 4vw 36px; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
+    .footer-row { display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap; }
+    .footer-team { color:var(--pink, #ff5fa2); font-size:1.5rem; letter-spacing:-.04em; }
+    .footer-row p { margin:4px 0 0; }
+    .footer-contact { display:grid; gap:5px; }
+    .site-footer a { color:var(--ink); text-underline-offset:4px; overflow-wrap:anywhere; }
+    .site-footer a:hover, .privacy-policy summary:hover { color:var(--pink, #ff5fa2); }
+    .privacy-policy { margin-top:24px; padding-top:18px; border-top:1px solid var(--line); }
+    .privacy-policy summary { width:fit-content; cursor:pointer; color:var(--ink); }
+    .privacy-content { max-width:850px; margin-top:22px; line-height:1.75; }
+    .privacy-content h2 { margin:24px 0 8px; color:var(--ink); font-size:1rem; }
+    .privacy-date { font-size:.75rem; }
+    @media (max-width:800px) { .site-footer { padding:26px 19px 110px; } }
     @media (min-width:801px) and (max-width:1150px) { .language-tools .demo { display:none; } }
   </style>
   <script>
@@ -154,6 +194,25 @@
       ['Команда выбрана','Команда таңдалды','Team selected'],['Отклик отклонён','Ұсыныс қабылданбады','Proposal rejected'],['Решение бизнеса сохранено.','Бизнес шешімі сақталды.','The business decision was saved.'],
       ['Ошибка','Қате','Error'],['Ошибка запроса','Сұрау қатесі','Request failed'],['Сервер недоступен','Сервер қолжетімсіз','Server unavailable'],['Запустите проект командой python app.py.','Жобаны python app.py командасымен іске қосыңыз.','Start the project with python app.py.']
     ];
+    translations.push(
+      ['Команда проекта TaskForge','TaskForge жобасының командасы','The team behind TaskForge'],
+      ['Связаться с нами','Бізбен байланысу','Contact us'],
+      ['Политика конфиденциальности','Құпиялық саясаты','Privacy policy'],
+      ['Дата обновления: 23 сентября 2026 г.','Жаңартылған күні: 2026 жылғы 23 қыркүйек','Last updated: September 23, 2026'],
+      ['Эта политика описывает обработку данных в текущей демоверсии TaskForge команды Zummer.','Бұл саясат Zummer командасының TaskForge демонұсқасында деректерді өңдеу тәртібін сипаттайды.','This policy describes data processing in the current TaskForge demo by the Zummer team.'],
+      ['Какие данные обрабатываются','Қандай деректер өңделеді','Data we process'],
+      ['Сервис получает введённые вами описания задач, контактные данные, сведения о командах, идеи решений, планы, сроки, ссылки на прототипы и решения по откликам. Эти данные используются для подготовки карточек, оценки их полноты, публикации задач и работы с предложениями команд.','Сервис сіз енгізген тапсырма сипаттамаларын, байланыс деректерін, командалар туралы мәліметтерді, шешім идеяларын, жоспарларды, мерзімдерді, прототип сілтемелерін және ұсыныстар бойынша шешімдерді алады. Бұл деректер карточкаларды дайындау, олардың толықтығын бағалау, тапсырмаларды жариялау және командалардың ұсыныстарымен жұмыс істеу үшін қолданылады.','The service receives task descriptions, contact details, team information, solution ideas, plans, timelines, prototype links and proposal decisions that you submit. This information is used to prepare task cards, assess completeness, publish tasks and manage team proposals.'],
+      ['Публикация и доступ','Жариялау және қолжетімділік','Publication and access'],
+      ['Опубликованные задачи, включая контактные данные, и отправленные отклики доступны посетителям демоверсии. В ней нет личных кабинетов с ограничением доступа. Не размещайте конфиденциальные сведения и чужие персональные данные без разрешения.','Жарияланған тапсырмалар, соның ішінде байланыс деректері мен жіберілген ұсыныстар демонұсқаға кірген адамдарға қолжетімді. Онда кіруі шектелген жеке кабинеттер жоқ. Құпия ақпаратты және басқа адамдардың жеке деректерін рұқсатсыз жарияламаңыз.','Published tasks, including contact details, and submitted proposals are accessible to demo visitors. The demo has no private accounts with restricted access. Do not post confidential information or other people’s personal data without permission.'],
+      ['Хранение данных','Деректерді сақтау','Data storage'],
+      ['Задачи и отклики хранятся в памяти сервера до его перезапуска. Выбранный язык сохраняется в браузере до очистки данных сайта. Сервер также выводит технические журналы запросов; срок их хранения зависит от среды запуска.','Тапсырмалар мен ұсыныстар сервер қайта іске қосылғанға дейін оның жадында сақталады. Таңдалған тіл сайт деректері тазаланғанға дейін браузерде сақталады. Сервер сұраулардың техникалық журналдарын да шығарады; оларды сақтау мерзімі іске қосу ортасына байланысты.','Tasks and proposals are stored in server memory until it restarts. Your selected language stays in your browser until site data is cleared. The server also outputs technical request logs; their retention depends on the hosting environment.'],
+      ['Браузер и внешние сервисы','Браузер және сыртқы сервистер','Browser and external services'],
+      ['Демоверсия не использует рекламные или аналитические cookies. Описания задач обрабатываются на сервере приложения без отправки во внешний AI-сервис. При переходе по внешним ссылкам или отправке письма действуют правила соответствующего сайта или почтового сервиса.','Демонұсқа жарнамалық немесе аналитикалық cookies қолданбайды. Тапсырма сипаттамалары сыртқы AI сервисіне жіберілмей, қолданба серверінде өңделеді. Сыртқы сілтемелерге өткенде немесе хат жібергенде тиісті сайттың немесе пошта сервисінің ережелері қолданылады.','The demo does not use advertising or analytics cookies. Task descriptions are processed on the application server without being sent to an external AI service. When you follow external links or send email, the relevant website or email service policies apply.'],
+      ['Вопросы и запросы о данных','Деректер туралы сұрақтар мен өтініштер','Data questions and requests'],
+      ['Чтобы уточнить, исправить или удалить относящиеся к вам данные, напишите команде Zummer. Укажите задачу или отклик и суть запроса, не отправляя лишние персональные данные.','Өзіңізге қатысты деректерді нақтылау, түзету немесе жою үшін Zummer командасына жазыңыз. Артық жеке деректерді жібермей, тапсырманы немесе ұсынысты және өтініштің мәнін көрсетіңіз.','To ask about, correct or delete data relating to you, email the Zummer team. Identify the task or proposal and describe your request without sending unnecessary personal data.'],
+      ['Изменения политики','Саясаттағы өзгерістер','Policy updates'],
+      ['При изменении работы сервиса мы обновим эту политику и дату её редакции на этой странице.','Сервис жұмысы өзгергенде, осы беттегі саясат пен оның жаңартылған күні өзгертіледі.','When the service changes, we will update this policy and its revision date on this page.']
+    );
     const dictionary = new Map(translations.map(row => [row[0], row]));
     const sourceText = new Map(translations.flatMap(row => row.map(text => [text, row[0]])));
     const sources = new WeakMap();

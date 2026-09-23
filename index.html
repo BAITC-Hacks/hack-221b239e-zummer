@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="TaskForge — платформа подготовки бизнес-задач и открытого выбора команд.">
+  <title>TaskForge — задачи, готовые к решению</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%2313181f'/%3E%3Cpath d='M16 17h32v10H37v22H27V27H16z' fill='%23c8ff3d'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css"><script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#builder"><b>T</b><span>TaskForge</span></a>
+    <nav aria-label="Основная навигация">
+      <button class="nav active" data-view="builder">Создать задачу</button>
+      <button class="nav" data-view="catalog">Каталог <i id="taskCount">0</i></button>
+      <button class="nav" data-view="decisions">Отклики <i id="proposalCount">0</i></button>
+    </nav>
+    <span class="demo"><i></i> Демо-режим</span>
+  </header>
+
+  <main>
+    <section class="view active" id="builderView">
+      <header class="hero">
+        <div><p class="eyebrow">Конструктор бизнес-задачи</p><h1>Из идеи — в задачу,<br><em>готовую к работе.</em></h1></div>
+        <div class="steps"><span class="on">01 Черновик</span><i></i><span>02 Уточнение</span><i></i><span>03 Публикация</span></div>
+      </header>
+      <div class="builder">
+        <div class="stack">
+          <article class="panel numbered">
+            <b class="num">01</b><div class="inside">
+              <div class="title-row"><div><h2>Опишите потребность своими словами</h2><p>Можно коротко. AI найдёт пробелы и задаст уточняющие вопросы.</p></div><button class="link" id="exampleBtn">Вставить пример</button></div>
+              <label class="sr" for="draft">Описание задачи</label><textarea id="draft" rows="6" maxlength="1200" placeholder="Например: хотим сократить очереди в столовой университета..."></textarea>
+              <div class="meta"><span>✦ Локальная AI-модель</span><span id="counter">0 / 1200</span></div>
+              <div class="actions"><p class="error" id="draftError"></p><button class="primary" id="analyzeBtn">Проверить полноту <b>→</b></button></div>
+            </div>
+          </article>
+
+          <article class="panel numbered" id="questionsPanel" hidden>
+            <b class="num">02</b><div class="inside">
+              <p class="eyebrow purple">✦ AI-анализ завершён</p><h2>Нужно несколько уточнений</h2>
+              <p class="notice">Спрашиваем только о недостающих данных и не добавляем факты от себя.</p>
+              <div id="questions" class="questions"></div>
+              <button class="primary full" id="buildBtn">Собрать карточку <b>→</b></button>
+            </div>
+          </article>
+
+          <article class="panel numbered" id="cardPanel" hidden>
+            <b class="num">03</b><div class="inside">
+              <p class="eyebrow">Редактируемая карточка</p><h2>Проверьте всё перед публикацией</h2>
+              <form id="taskForm" novalidate><div class="form-grid">
+                <label class="field wide">Название задачи *<input name="title" maxlength="100"></label>
+                <label class="field">Тематика<select name="industry"><option>Образование</option><option>Ритейл</option><option>Финтех</option><option>Экология</option><option>Городская среда</option><option>Другое</option></select></label>
+                <label class="field wide">Контекст<textarea name="context" rows="3" placeholder="Что происходит сейчас?"></textarea></label>
+                <label class="field wide">Потребность<textarea name="need" rows="3" placeholder="Что должно измениться?"></textarea></label>
+                <label class="field">Пользователи<textarea name="users" rows="3"></textarea></label>
+                <label class="field">Данные и материалы<textarea name="data" rows="3"></textarea></label>
+                <label class="field">Ожидаемый результат<textarea name="expected_result" rows="3"></textarea></label>
+                <label class="field">Критерии успеха<textarea name="success_criteria" rows="3"></textarea></label>
+                <label class="field">Ограничения<textarea name="constraints" rows="3"></textarea></label>
+                <label class="field">Контакт и формат связи<textarea name="contact" rows="3"></textarea></label>
+              </div>
+              <label class="confirm"><input type="checkbox" id="confirm"><i></i><span>Я проверил(а) карточку и подтверждаю достоверность данных</span></label>
+              <div class="actions"><p class="error" id="publishError"></p><button class="primary" type="submit">Опубликовать <b>→</b></button></div>
+              </form>
+            </div>
+          </article>
+        </div>
+
+        <aside class="score panel">
+          <div class="score-head"><span>Рейтинг готовности</span><b title="Баллы начисляются за заполненные и подтверждённые поля">i</b></div>
+          <div class="ring" id="ring"><span><strong id="score">0</strong><small>/100</small></span></div>
+          <div class="level"><i></i><span><small>Текущий уровень</small><b id="level">Черновик</b></span></div>
+          <div class="rule"></div><div class="score-head"><span>Начисление баллов</span><small id="filled">0 из 7</small></div>
+          <div id="breakdown" class="breakdown"></div><div id="tip" class="tip"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="view" id="catalogView">
+      <header class="hero"><div><p class="eyebrow">Открытый пул</p><h1>Каталог задач</h1><p class="sub">Высокий рейтинг означает готовность задачи, а не престиж компании.</p></div><button class="primary" data-new>+ Новая задача</button></header>
+      <div class="toolbar"><label class="search">⌕<input id="search" type="search" placeholder="Поиск по задачам"></label><select id="industry"><option value="">Все темы</option></select><select id="readiness"><option value="">Любая готовность</option><option value="priority">Приоритетная</option><option value="ready">Готовая</option><option value="workable">Рабочая</option><option value="draft">Черновик</option></select><select id="sort"><option value="score">Сначала высокий рейтинг</option><option value="newest">Сначала новые</option><option value="proposals">Больше откликов</option></select></div>
+      <div class="summary"><b id="resultCount">0 задач</b><span>Обновлено только что</span></div><div class="cards" id="cards"></div><div class="empty" id="empty" hidden><h2>Ничего не найдено</h2><p>Измените фильтры или создайте новую задачу.</p></div>
+    </section>
+
+    <section class="view" id="decisionsView">
+      <header class="hero"><div><p class="eyebrow">Решение остаётся за человеком</p><h1>Отклики команд</h1><p class="sub">Сравнивайте идеи и принимайте решение вручную. TaskForge никого не назначает автоматически.</p></div></header>
+      <div id="decisionList" class="decision-list"></div>
+    </section>
+  </main>
+
+  <dialog id="taskDialog"><button class="close" aria-label="Закрыть">×</button><div id="dialogBody"></div></dialog>
+  <div class="toast" id="toast"><b>✓</b><span><strong id="toastTitle"></strong><small id="toastText"></small></span></div>
+</body></html>

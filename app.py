@@ -25,7 +25,7 @@ def enrich(t):
  t.update(score=score,breakdown=breakdown,missing=missing,readiness="priority" if score>=90 else "ready" if score>=70 else "workable" if score>=40 else "draft")
  return t
 def task(id,title,industry,context,need,created_at,**x):
- t={"id":id,"title":title,"industry":industry,"context":context,"need":need,"users":"","data":"","constraints":"","expected_result":"","success_criteria":"","contact":"","confirmed":True,"published":True,"created_at":created_at,"proposals":[]};t.update(x);return enrich(t)
+ t={"id":id,"title":title,"industry":industry,"context":context,"need":need,"users":"","data":"","constraints":"","expected_result":"","success_criteria":"","contact":"","confirmed":True,"published":True,"created_at":created_at,"stage":"open","deadline":"","updates":[],"proposals":[]};t.update(x);return enrich(t)
 TASKS=[
  task("task-1","Сократить очереди в университетской столовой","Образование","В обед студенты ждут заказ до 25 минут, сотрудники не видят будущую нагрузку.","Нужен сервис предзаказа и прогнозирования нагрузки по времени.","2026-09-22T09:00:00+00:00",users="Студенты, преподаватели и сотрудники столовой.",data="История продаж за 6 месяцев, меню и расписание пар.",constraints="MVP без онлайн-оплаты; запуск за 4 недели.",expected_result="Веб-MVP предзаказа и панель прогноза нагрузки.",success_criteria="Среднее ожидание ниже 10 минут; 60% заказов вовремя.",contact="Менеджер столовой; консультация по средам."),
  task("task-2","Прогнозировать остатки скоропортящихся товаров","Ритейл","Магазины списывают свежие продукты из-за неточного ручного заказа.","Нужен прогноз спроса на 7 дней по товарным категориям.","2026-09-21T13:30:00+00:00",users="Управляющие магазинов и специалисты по закупкам.",data="Продажи, остатки, промо и списания по 12 магазинам за год.",constraints="Без персональных данных; запуск на обычном ноутбуке.",expected_result="Модель прогноза и рекомендации объёма заказа.",success_criteria="Ошибка ниже baseline минимум на 15%.",contact="Продуктовый аналитик; две консультации в неделю."),
@@ -78,6 +78,8 @@ class Handler(BaseHTTPRequestHandler):
    text=str(d.get("description","")).strip()
    return self.json(analyze(text[:1200])) if len(text)>=12 else self.json({"error":"Описание должно содержать хотя бы 12 символов"},400)
   if p=="/api/tasks":return self.create_task(d)
+  m=re.fullmatch(r"/api/tasks/([^/]+)/stage",p)
+  if m:return self.change_stage(m.group(1),d)
   m=re.fullmatch(r"/api/tasks/([^/]+)/proposals",p)
   if m:return self.create_proposal(m.group(1),d)
   m=re.fullmatch(r"/api/proposals/([^/]+)/decision",p)
@@ -86,10 +88,26 @@ class Handler(BaseHTTPRequestHandler):
  def create_task(self,d):
   if not all(str(d.get(x,"")).strip() for x in ("title","context","need")):return self.json({"error":"Нужны название, контекст и потребность"},400)
   if d.get("confirmed") is not True:return self.json({"error":"Подтвердите карточку"},400)
-  fields=("title","industry","context","need","users","data","constraints","expected_result","success_criteria","contact");t={f:str(d.get(f,"")).strip()[:2000] for f in fields};t.update(id=uid("task"),title=t["title"][:100],industry=t["industry"] or "Другое",confirmed=True,published=True,created_at=now(),proposals=[]);enrich(t);TASKS.append(t);self.json(t,201)
+  deadline=str(d.get("deadline","") or "").strip()
+  if deadline:
+   try:parsed_deadline=datetime.strptime(deadline,"%Y-%m-%d").date()
+   except ValueError:return self.json({"error":"Укажите дату окончания приёма откликов"},400)
+   if parsed_deadline<datetime.now(timezone.utc).date():return self.json({"error":"Дата окончания приёма откликов не может быть в прошлом"},400)
+  fields=("title","industry","context","need","users","data","constraints","expected_result","success_criteria","contact");t={f:str(d.get(f,"")).strip()[:2000] for f in fields};t.update(id=uid("task"),title=t["title"][:100],industry=t["industry"] or "Другое",confirmed=True,published=True,created_at=now(),stage="open",deadline=deadline,updates=[],proposals=[]);enrich(t);TASKS.append(t);self.json(t,201)
+ def change_stage(self,tid,d):
+  stage=d.get("stage")
+  if stage not in ("open","in_progress","completed"):return self.json({"error":"Выберите один из этапов задачи"},400)
+  t=next((x for x in TASKS if x["id"]==tid),None)
+  if not t:return self.json({"error":"Задача не найдена"},404)
+  previous=t.get("stage","open")
+  if previous!=stage:
+   changed_at=now();t.setdefault("updates",[]).append({"id":uid("update"),"type":"stage","from":previous,"to":stage,"created_at":changed_at});t.update(stage=stage,stage_changed_at=changed_at)
+  return self.json(t)
  def create_proposal(self,tid,d):
   t=next((x for x in TASKS if x["id"]==tid),None);team=next((x for x in TEAMS if x["id"]==d.get("team_id")),None)
   if not t or not team:return self.json({"error":"Задача или команда не найдена"},404)
+  if t.get("stage","open")!="open":return self.json({"error":"Приём откликов закрыт: задача уже в работе или завершена"},409)
+  if t.get("deadline") and t["deadline"]<datetime.now(timezone.utc).date().isoformat():return self.json({"error":"Срок приёма откликов истёк"},409)
   if not all(str(d.get(x,"")).strip() for x in ("idea","plan","timeline")):return self.json({"error":"Заполните идею, план и срок"},400)
   p={"id":uid("proposal"),"team_id":team["id"],"team_name":team["name"],"idea":str(d["idea"])[:500],"plan":str(d["plan"])[:1000],"timeline":str(d["timeline"])[:100],"prototype":str(d.get("prototype",""))[:500],"status":"pending","created_at":now()};t["proposals"].append(p);self.json(p,201)
  def decide(self,pid,d):

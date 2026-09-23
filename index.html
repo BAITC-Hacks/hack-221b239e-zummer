@@ -14,6 +14,7 @@
       <button class="nav active" data-view="builder">Создать задачу</button>
       <button class="nav" data-view="catalog">Каталог <i id="taskCount">0</i></button>
       <button class="nav" data-view="decisions">Отклики <i id="proposalCount">0</i></button>
+      <button class="nav" data-view="updates">Обновления <i id="updateCount">0</i></button>
       <button class="nav" data-view="about">О нас</button>
     </nav>
     <div class="language-tools"><span class="demo"><i></i> Демо-режим</span><select id="languageSelect" aria-label="Язык интерфейса"><option value="kk" lang="kk">Қазақша</option><option value="en" lang="en">English</option><option value="ru" lang="ru" selected>Русский</option></select></div>
@@ -51,6 +52,7 @@
               <form id="taskForm" novalidate><div class="form-grid">
                 <label class="field wide">Название задачи *<input name="title" maxlength="100"></label>
                 <label class="field">Тематика<select name="industry"><option>Образование</option><option>Ритейл</option><option>Финтех</option><option>Экология</option><option>Городская среда</option><option>Другое</option></select></label>
+                <label class="field">Приём откликов до<input id="taskDeadline" name="deadline" type="date"><small class="field-hint">Необязательно. Если оставить пустым, дата не ограничена.</small></label>
                 <label class="field wide">Контекст<textarea name="context" rows="3" placeholder="Что происходит сейчас?"></textarea></label>
                 <label class="field wide">Потребность<textarea name="need" rows="3" placeholder="Что должно измениться?"></textarea></label>
                 <label class="field">Пользователи<textarea name="users" rows="3"></textarea></label>
@@ -83,6 +85,11 @@
       <div class="summary"><b id="resultCount">0 задач</b><span>Обновлено только что</span></div><div class="cards" id="cards"></div><div class="empty" id="empty" hidden><h2>Ничего не найдено</h2><p>Измените фильтры или создайте новую задачу.</p></div>
     </section>
 
+    <section class="view" id="updatesView">
+      <header class="hero"><div><p class="eyebrow">История изменений</p><h1>Обновления задач</h1><p class="sub">Здесь команды видят, когда меняется этап работы над задачей.</p></div></header>
+      <div class="updates-list" id="updatesList"></div>
+    </section>
+
     <section class="view" id="decisionsView">
       <header class="hero"><div><p class="eyebrow">Решение остаётся за человеком</p><h1>Отклики команд</h1><p class="sub">Сравнивайте идеи и принимайте решение вручную. TaskForge никого не назначает автоматически.</p></div></header>
       <div id="decisionList" class="decision-list"></div>
@@ -100,11 +107,11 @@
         <p class="privacy-date">Дата обновления: 23 сентября 2026 г.</p>
         <p>Эта политика описывает обработку данных в текущей демоверсии TaskForge команды Zummer.</p>
         <h2>Какие данные обрабатываются</h2>
-        <p>Сервис получает введённые вами описания задач, контактные данные, сведения о командах, идеи решений, планы, сроки, ссылки на прототипы и решения по откликам. Эти данные используются для подготовки карточек, оценки их полноты, публикации задач и работы с предложениями команд.</p>
+        <p>Сервис получает введённые вами описания задач, контактные данные, сведения о командах, идеи решений, планы, сроки, даты окончания приёма откликов, этапы задач и историю их изменений, ссылки на прототипы и решения по откликам. Эти данные используются для подготовки карточек, оценки их полноты, публикации задач и работы с предложениями команд.</p>
         <h2>Публикация и доступ</h2>
-        <p>Опубликованные задачи, включая контактные данные, и отправленные отклики доступны посетителям демоверсии. В ней нет личных кабинетов с ограничением доступа. Не размещайте конфиденциальные сведения и чужие персональные данные без разрешения.</p>
+        <p>Опубликованные задачи, их этапы и история изменений, включая контактные данные и отправленные отклики, доступны посетителям демоверсии. В ней нет личных кабинетов с ограничением доступа. Не размещайте конфиденциальные сведения и чужие персональные данные без разрешения.</p>
         <h2>Хранение данных</h2>
-        <p>Задачи и отклики хранятся в памяти сервера до его перезапуска. Выбранный язык сохраняется в браузере до очистки данных сайта. Сервер также выводит технические журналы запросов; срок их хранения зависит от среды запуска.</p>
+        <p>Задачи, отклики и история изменений этапов хранятся в памяти сервера до его перезапуска. Выбранный язык сохраняется в браузере до очистки данных сайта. Сервер также выводит технические журналы запросов; срок их хранения зависит от среды запуска.</p>
         <h2>Браузер и внешние сервисы</h2>
         <p>Демоверсия не использует рекламные или аналитические cookies. Описания задач обрабатываются на сервере приложения без отправки во внешний AI-сервис. При переходе по внешним ссылкам или отправке письма действуют правила соответствующего сайта или почтового сервиса.</p>
         <h2>Вопросы и запросы о данных</h2>
@@ -149,7 +156,7 @@
       ['TaskForge — задачи, готовые к решению','TaskForge — шешуге дайын тапсырмалар','TaskForge — tasks ready to solve'],
       ['TaskForge — платформа подготовки бизнес-задач и открытого выбора команд.','TaskForge — бизнес тапсырмаларын дайындау және командаларды ашық таңдау платформасы.','TaskForge — a platform for preparing business tasks and openly selecting teams.'],
       ['Создать задачу','Тапсырма құру','Create task'],
-      ['Каталог','Каталог','Catalog'],['Отклики','Ұсыныстар','Proposals'],['Демо-режим','Демо режимі','Demo mode'],
+      ['Каталог','Каталог','Catalog'],['Отклики','Ұсыныстар','Proposals'],['Обновления','Жаңартулар','Updates'],['Демо-режим','Демо режимі','Demo mode'],
       ['Конструктор бизнес-задачи','Бизнес тапсырмасын құрастыру','Business task builder'],
       ['Из идеи — в задачу,','Идеядан — тапсырмаға,','Turn an idea into a task,'],
       ['готовую к работе.','жұмысқа дайын.','ready for action.'],
@@ -170,6 +177,7 @@
       ['Пользователи','Пайдаланушылар','Users'],['Данные и материалы','Деректер мен материалдар','Data and materials'],
       ['Ожидаемый результат','Күтілетін нәтиже','Expected outcome'],['Критерии успеха','Табыс критерийлері','Success criteria'],
       ['Ограничения','Шектеулер','Constraints'],['Контакт и формат связи','Байланыс деректері мен форматы','Contact details and communication format'],
+      ['Приём откликов до','Ұсыныстарды қабылдау мерзімі','Proposals accepted until'],['Необязательно. Если оставить пустым, дата не ограничена.','Міндетті емес. Бос қалдырылса, мерзім шектелмейді.','Optional. Leave empty for no deadline.'],
       ['Я проверил(а) карточку и подтверждаю достоверность данных','Карточканы тексердім және деректердің дұрыстығын растаймын','I have reviewed the card and confirm the information is accurate'],
       ['Опубликовать','Жариялау','Publish'],['Рейтинг готовности','Дайындық рейтингі','Readiness score'],
       ['Баллы начисляются за заполненные и подтверждённые поля','Ұпайлар толтырылған және расталған өрістер үшін беріледі','Points are awarded for completed and confirmed fields'],
@@ -180,6 +188,10 @@
       ['Любая готовность','Кез келген дайындық','Any readiness'],['Приоритетная','Басым','Priority'],['Готовая','Дайын','Ready'],['Рабочая','Жұмысқа жарамды','Workable'],
       ['Сначала высокий рейтинг','Алдымен жоғары рейтинг','Highest score first'],['Сначала новые','Алдымен жаңалары','Newest first'],['Больше откликов','Ұсынысы көп','Most proposals'],
       ['Обновлено только что','Жаңа ғана жаңартылды','Just updated'],['Ничего не найдено','Ештеңе табылмады','No results found'],
+      ['История изменений','Өзгерістер тарихы','Change history'],['Обновления задач','Тапсырма жаңартулары','Task updates'],['Здесь команды видят, когда меняется этап работы над задачей.','Мұнда командалар тапсырма кезеңі өзгергенін көреді.','Teams can see when a task stage changes here.'],
+      ['Открыта','Ашық','Open'],['В работе','Жұмыста','In progress'],['Завершена','Аяқталды','Completed'],['Этап задачи','Тапсырма кезеңі','Task stage'],['Изменить этап','Кезеңді өзгерту','Change stage'],['Обновить этап','Кезеңді жаңарту','Update stage'],
+      ['Приём откликов открыт','Ұсыныстар қабылдау ашық','Proposals are open'],['Приём откликов закрыт','Ұсыныстар қабылдау жабық','Proposals are closed'],['Приём откликов закрыт: задача уже в работе или завершена','Ұсыныстар қабылдау жабық: тапсырма жұмыста немесе аяқталған','Proposals are closed because the task is in progress or completed'],['Без срока','Мерзімсіз','No deadline'],['Приём до','Қабылдау мерзімі','Deadline'],['Отклики принимаются до','Ұсыныстар мына күнге дейін қабылданады','Proposals accepted until'],['Обновления пока не появились.','Әзірге жаңартулар жоқ.','No updates yet.'],['Нет обновлений','Жаңарту жоқ','No updates'],['Срок истёк','Мерзімі аяқталды','Deadline passed'],['Этап задачи обновлён','Тапсырма кезеңі жаңартылды','Task stage updated'],['Открыть задачу','Тапсырманы ашу','Open task'],
+      ['Укажите дату окончания приёма откликов','Ұсыныстарды қабылдау аяқталатын күнді көрсетіңіз','Enter the proposal deadline'],['Дата окончания приёма откликов не может быть в прошлом.','Ұсыныстарды қабылдау аяқталатын күн өткен күн болмауы керек.','The proposal deadline cannot be in the past.'],['Срок приёма откликов истёк','Ұсыныстарды қабылдау мерзімі аяқталды','The proposal deadline has passed'],['Выберите один из этапов задачи','Тапсырма кезеңдерінің бірін таңдаңыз','Choose a task stage'],['Задача не найдена','Тапсырма табылмады','Task not found'],
       ['Измените фильтры или создайте новую задачу.','Сүзгілерді өзгертіңіз немесе жаңа тапсырма құрыңыз.','Change the filters or create a new task.'],
       ['Решение остаётся за человеком','Шешімді адам қабылдайды','People make the decision'],['Отклики команд','Командалардың ұсыныстары','Team proposals'],
       ['Сравнивайте идеи и принимайте решение вручную. TaskForge никого не назначает автоматически.','Идеяларды салыстырып, шешімді өзіңіз қабылдаңыз. TaskForge ешкімді автоматты түрде тағайындамайды.','Compare ideas and make your own decision. TaskForge does not assign anyone automatically.'],
@@ -206,11 +218,11 @@
       ['Дата обновления: 23 сентября 2026 г.','Жаңартылған күні: 2026 жылғы 23 қыркүйек','Last updated: September 23, 2026'],
       ['Эта политика описывает обработку данных в текущей демоверсии TaskForge команды Zummer.','Бұл саясат Zummer командасының TaskForge демонұсқасында деректерді өңдеу тәртібін сипаттайды.','This policy describes data processing in the current TaskForge demo by the Zummer team.'],
       ['Какие данные обрабатываются','Қандай деректер өңделеді','Data we process'],
-      ['Сервис получает введённые вами описания задач, контактные данные, сведения о командах, идеи решений, планы, сроки, ссылки на прототипы и решения по откликам. Эти данные используются для подготовки карточек, оценки их полноты, публикации задач и работы с предложениями команд.','Сервис сіз енгізген тапсырма сипаттамаларын, байланыс деректерін, командалар туралы мәліметтерді, шешім идеяларын, жоспарларды, мерзімдерді, прототип сілтемелерін және ұсыныстар бойынша шешімдерді алады. Бұл деректер карточкаларды дайындау, олардың толықтығын бағалау, тапсырмаларды жариялау және командалардың ұсыныстарымен жұмыс істеу үшін қолданылады.','The service receives task descriptions, contact details, team information, solution ideas, plans, timelines, prototype links and proposal decisions that you submit. This information is used to prepare task cards, assess completeness, publish tasks and manage team proposals.'],
+      ['Сервис получает введённые вами описания задач, контактные данные, сведения о командах, идеи решений, планы, сроки, даты окончания приёма откликов, этапы задач и историю их изменений, ссылки на прототипы и решения по откликам. Эти данные используются для подготовки карточек, оценки их полноты, публикации задач и работы с предложениями команд.','Сервис сіз енгізген тапсырма сипаттамаларын, байланыс деректерін, командалар туралы мәліметтерді, шешім идеяларын, жоспарларды, мерзімдерді, ұсыныстарды қабылдау аяқталатын күндерді, тапсырма кезеңдері мен олардың өзгерістер тарихын, прототип сілтемелерін және ұсыныстар бойынша шешімдерді алады. Бұл деректер карточкаларды дайындау, олардың толықтығын бағалау, тапсырмаларды жариялау және командалардың ұсыныстарымен жұмыс істеу үшін қолданылады.','The service receives task descriptions, contact details, team information, solution ideas, plans, timelines, proposal deadlines, task stages and their change history, prototype links and proposal decisions that you submit. This information is used to prepare task cards, assess completeness, publish tasks and manage team proposals.'],
       ['Публикация и доступ','Жариялау және қолжетімділік','Publication and access'],
-      ['Опубликованные задачи, включая контактные данные, и отправленные отклики доступны посетителям демоверсии. В ней нет личных кабинетов с ограничением доступа. Не размещайте конфиденциальные сведения и чужие персональные данные без разрешения.','Жарияланған тапсырмалар, соның ішінде байланыс деректері мен жіберілген ұсыныстар демонұсқаға кірген адамдарға қолжетімді. Онда кіруі шектелген жеке кабинеттер жоқ. Құпия ақпаратты және басқа адамдардың жеке деректерін рұқсатсыз жарияламаңыз.','Published tasks, including contact details, and submitted proposals are accessible to demo visitors. The demo has no private accounts with restricted access. Do not post confidential information or other people’s personal data without permission.'],
+      ['Опубликованные задачи, их этапы и история изменений, включая контактные данные и отправленные отклики, доступны посетителям демоверсии. В ней нет личных кабинетов с ограничением доступа. Не размещайте конфиденциальные сведения и чужие персональные данные без разрешения.','Жарияланған тапсырмалар, олардың кезеңдері мен өзгерістер тарихы, соның ішінде байланыс деректері мен жіберілген ұсыныстар демонұсқаға кірген адамдарға қолжетімді. Онда кіруі шектелген жеке кабинеттер жоқ. Құпия ақпаратты және басқа адамдардың жеке деректерін рұқсатсыз жарияламаңыз.','Published tasks, their stages and change history, including contact details and submitted proposals, are accessible to demo visitors. The demo has no private accounts with restricted access. Do not post confidential information or other people’s personal data without permission.'],
       ['Хранение данных','Деректерді сақтау','Data storage'],
-      ['Задачи и отклики хранятся в памяти сервера до его перезапуска. Выбранный язык сохраняется в браузере до очистки данных сайта. Сервер также выводит технические журналы запросов; срок их хранения зависит от среды запуска.','Тапсырмалар мен ұсыныстар сервер қайта іске қосылғанға дейін оның жадында сақталады. Таңдалған тіл сайт деректері тазаланғанға дейін браузерде сақталады. Сервер сұраулардың техникалық журналдарын да шығарады; оларды сақтау мерзімі іске қосу ортасына байланысты.','Tasks and proposals are stored in server memory until it restarts. Your selected language stays in your browser until site data is cleared. The server also outputs technical request logs; their retention depends on the hosting environment.'],
+      ['Задачи, отклики и история изменений этапов хранятся в памяти сервера до его перезапуска. Выбранный язык сохраняется в браузере до очистки данных сайта. Сервер также выводит технические журналы запросов; срок их хранения зависит от среды запуска.','Тапсырмалар, ұсыныстар және кезеңдердің өзгерістер тарихы сервер қайта іске қосылғанға дейін оның жадында сақталады. Таңдалған тіл сайт деректері тазаланғанға дейін браузерде сақталады. Сервер сұраулардың техникалық журналдарын да шығарады; оларды сақтау мерзімі іске қосу ортасына байланысты.','Tasks, proposals and stage change history are stored in server memory until it restarts. Your selected language stays in your browser until site data is cleared. The server also outputs technical request logs; their retention depends on the hosting environment.'],
       ['Браузер и внешние сервисы','Браузер және сыртқы сервистер','Browser and external services'],
       ['Демоверсия не использует рекламные или аналитические cookies. Описания задач обрабатываются на сервере приложения без отправки во внешний AI-сервис. При переходе по внешним ссылкам или отправке письма действуют правила соответствующего сайта или почтового сервиса.','Демонұсқа жарнамалық немесе аналитикалық cookies қолданбайды. Тапсырма сипаттамалары сыртқы AI сервисіне жіберілмей, қолданба серверінде өңделеді. Сыртқы сілтемелерге өткенде немесе хат жібергенде тиісті сайттың немесе пошта сервисінің ережелері қолданылады.','The demo does not use advertising or analytics cookies. Task descriptions are processed on the application server without being sent to an external AI service. When you follow external links or send email, the relevant website or email service policies apply.'],
       ['Вопросы и запросы о данных','Деректер туралы сұрақтар мен өтініштер','Data questions and requests'],
@@ -224,7 +236,7 @@
     const selector = document.getElementById('languageSelect');
     let language = 'ru';
     try { const saved = localStorage.getItem('taskforge.language'); if (['ru','kk','en'].includes(saved)) language = saved; } catch (_) {}
-    const dynamicUI = '#level, #filled, #breakdown, #tip, #resultCount, .error, #toastTitle, #toastText, #analyzeBtn, #taskForm button, #proposalForm button, #industry option, .card .tag, .card .status, .metric small, .card .open, .detail small, .proposal-form h3, .proposal-form > p, .proposal-form .field, .decision-buttons button, #decisionList > .empty';
+    const dynamicUI = '#level, #filled, #breakdown, #tip, #resultCount, .error, #toastTitle, #toastText, #analyzeBtn, #taskForm button, #proposalForm button, #industry option, .card .tag, .card .status, .card .task-stage, .card .deadline-state, .card .metric, .metric small, .card .open, .detail small, .proposal-form h3, .proposal-form > p, .proposal-form .field, .decision-buttons button, #decisionList > .empty, #dialogBody, #updatesList';
     function translate(text) {
       const index = language === 'kk' ? 1 : language === 'en' ? 2 : 0;
       if (dictionary.has(text)) return dictionary.get(text)[index];

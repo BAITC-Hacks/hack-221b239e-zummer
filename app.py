@@ -104,12 +104,18 @@ class Handler(BaseHTTPRequestHandler):
    changed_at=now();t.setdefault("updates",[]).append({"id":uid("update"),"type":"stage","from":previous,"to":stage,"created_at":changed_at});t.update(stage=stage,stage_changed_at=changed_at)
   return self.json(t)
  def create_proposal(self,tid,d):
-  t=next((x for x in TASKS if x["id"]==tid),None);team=next((x for x in TEAMS if x["id"]==d.get("team_id")),None)
-  if not t or not team:return self.json({"error":"Задача или команда не найдена"},404)
+  t=next((x for x in TASKS if x["id"]==tid),None)
+  applicant_id=str(d.get("applicant_id") or d.get("team_id") or "").strip();team_name=str(d.get("applicant_name") or d.get("team_name") or "").strip();participant_type=str(d.get("participant_type") or "team").strip()
+  team=next((x for x in TEAMS if x["id"]==d.get("team_id")),None)
+  if not t:return self.json({"error":"Задача не найдена"},404)
+  if not team and not applicant_id and not team_name:return self.json({"error":"Задача или команда не найдена"},404)
+  if team is None and applicant_id:
+   team={"id":applicant_id,"name":team_name or applicant_id}
   if t.get("stage","open")!="open":return self.json({"error":"Приём откликов закрыт: задача уже в работе или завершена"},409)
   if t.get("deadline") and t["deadline"]<datetime.now(timezone.utc).date().isoformat():return self.json({"error":"Срок приёма откликов истёк"},409)
   if not all(str(d.get(x,"")).strip() for x in ("idea","plan","timeline")):return self.json({"error":"Заполните идею, план и срок"},400)
-  p={"id":uid("proposal"),"team_id":team["id"],"team_name":team["name"],"idea":str(d["idea"])[:500],"plan":str(d["plan"])[:1000],"timeline":str(d["timeline"])[:100],"prototype":str(d.get("prototype",""))[:500],"status":"pending","created_at":now()};t["proposals"].append(p);self.json(p,201)
+  if participant_type not in ("student","team"):participant_type="team"
+  p={"id":uid("proposal"),"team_id":applicant_id or team["id"],"team_name":team_name or team["name"],"participant_type":participant_type,"idea":str(d["idea"])[:500],"plan":str(d["plan"])[:1000],"timeline":str(d["timeline"])[:100],"prototype":str(d.get("prototype",""))[:500],"status":"pending","created_at":now()};t["proposals"].append(p);self.json(p,201)
  def decide(self,pid,d):
   choice=d.get("decision")
   if choice not in ("selected","rejected"):return self.json({"error":"Можно выбрать или отклонить"},400)

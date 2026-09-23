@@ -17,7 +17,7 @@
       <button class="nav" data-view="updates">Обновления <i id="updateCount">0</i></button>
       <button class="nav" data-view="about">О нас</button>
     </nav>
-    <div class="language-tools"><span class="demo"><i></i> Демо-режим</span><select id="languageSelect" aria-label="Язык интерфейса"><option value="kk" lang="kk">Қазақша</option><option value="en" lang="en">English</option><option value="ru" lang="ru" selected>Русский</option></select></div>
+    <div class="language-tools"><span class="demo"><i></i> Демо-режим</span><select id="languageSelect" aria-label="Язык интерфейса"><option value="kk" lang="kk">Қазақша</option><option value="en" lang="en">English</option><option value="ru" lang="ru" selected>Русский</option></select><button class="account-button" id="authButton" type="button">Войти</button><div class="user-menu" id="userMenu" hidden><span class="user-avatar" id="userAvatar"></span><span class="user-copy"><strong id="userName"></strong><small id="userRole"></small></span><button class="logout-button" id="logoutButton" type="button">Выйти</button></div></div>
   </header>
 
   <main>
@@ -105,13 +105,13 @@
       <summary>Политика конфиденциальности</summary>
       <div class="privacy-content">
         <p class="privacy-date">Дата обновления: 23 сентября 2026 г.</p>
-        <p>Эта политика описывает обработку данных в текущей демоверсии TaskForge команды Zummer.</p>
+        <p>Эта политика описывает обработку данных в текущей демоверсии TaskForge команды Zummer. Авторизация и код подтверждения в этой версии фиктивны.</p>
         <h2>Какие данные обрабатываются</h2>
-        <p>Сервис получает введённые вами описания задач, контактные данные, сведения о командах, идеи решений, планы, сроки, даты окончания приёма откликов, этапы задач и историю их изменений, ссылки на прототипы и решения по откликам. Эти данные используются для подготовки карточек, оценки их полноты, публикации задач и работы с предложениями команд.</p>
+        <p>Сервис получает введённые вами имя, фамилию, номер телефона, роль, описания задач, сведения о команах, идеи решений, планы, сроки, этапы задач и решения по откликам. Эти данные используются только для демонстрации разных прав студента и бизнеса.</p>
         <h2>Публикация и доступ</h2>
-        <p>Опубликованные задачи, их этапы и история изменений, включая контактные данные и отправленные отклики, доступны посетителям демоверсии. В ней нет личных кабинетов с ограничением доступа. Не размещайте конфиденциальные сведения и чужие персональные данные без разрешения.</p>
+        <p>Каталог задач доступен обеим ролям. Публиковать задачи, менять их этапы и выбирать исполнителей может только бизнес; отправлять отклики — только студенты и команды. Не размещайте конфиденциальные сведения.</p>
         <h2>Хранение данных</h2>
-        <p>Задачи, отклики и история изменений этапов хранятся в памяти сервера до его перезапуска. Выбранный язык сохраняется в браузере до очистки данных сайта. Сервер также выводит технические журналы запросов; срок их хранения зависит от среды запуска.</p>
+        <p>В Live Server задачи, отклики, выбранный язык и фиктивный профиль хранятся в `localStorage` браузера. В серверном режиме задачи и отклики сбрасываются после перезапуска.</p>
         <h2>Браузер и внешние сервисы</h2>
         <p>Демоверсия не использует рекламные или аналитические cookies. Описания задач обрабатываются на сервере приложения без отправки во внешний AI-сервис. При переходе по внешним ссылкам или отправке письма действуют правила соответствующего сайта или почтового сервиса.</p>
         <h2>Вопросы и запросы о данных</h2>
@@ -125,6 +125,7 @@
     </section>
   </main>
 
+  <dialog class="auth-dialog" id="authDialog"><button class="close auth-close" id="authClose" type="button" aria-label="Закрыть">×</button><div class="auth-shell"><div class="auth-mark">T</div><p class="eyebrow">Демо-авторизация</p><h2>Войти в TaskForge</h2><p class="auth-lead">Выберите роль. Бизнес публикует задачи, студенты и команды отправляют отклики.</p><form id="authForm" novalidate><div class="auth-role-grid"><label><input type="radio" name="role" value="student" checked><span><b>Студент</b><small>Откликаться на задачи</small></span></label><label><input type="radio" name="role" value="business"><span><b>Бизнес</b><small>Публиковать и отбирать</small></span></label></div><div class="form-grid auth-fields"><label class="field">Имя<input name="first_name" autocomplete="given-name" maxlength="50" placeholder="Аружан"></label><label class="field">Фамилия<input name="last_name" autocomplete="family-name" maxlength="50" placeholder="Касанова"></label><label class="field wide">Номер телефона<input name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="+7 700 000 00 00"></label><label class="field" id="participationField">Формат участия<select name="participant_type"><option value="student">Лично</option><option value="team">Команда</option></select></label><label class="field" id="teamNameField" hidden>Название команды<input name="team_name" maxlength="80" placeholder="Например, Zummer"></label></div><p class="error" id="authError"></p><button class="primary full" type="submit">Получить код <b>→</b></button></form><form id="codeForm" class="code-form" hidden novalidate><p>Код отправлен на <strong id="codePhone"></strong></p><div class="demo-code">Фиктивное SMS: ваш код <b id="demoCode">1234</b></div><label class="field">Код подтверждения<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="4" placeholder="1234"></label><p class="error" id="codeError"></p><div class="auth-actions"><button class="link" id="authBack" type="button">Изменить данные</button><button class="primary" type="submit">Войти <b>→</b></button></div></form><p class="auth-note">Демо-режим: настоящее SMS не отправляется.</p></div></dialog>
   <dialog id="taskDialog"><button class="close" aria-label="Закрыть">×</button><div id="dialogBody"></div></dialog>
   <div class="toast" id="toast"><b>✓</b><span><strong id="toastTitle"></strong><small id="toastText"></small></span></div>
   <style>

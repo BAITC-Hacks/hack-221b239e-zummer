@@ -15,7 +15,7 @@
       <button class="nav" data-view="catalog">Каталог <i id="taskCount">0</i></button>
       <button class="nav" data-view="decisions">Отклики <i id="proposalCount">0</i></button>
     </nav>
-    <span class="demo"><i></i> Демо-режим</span>
+    <div class="language-tools"><span class="demo"><i></i> Демо-режим</span><select id="languageSelect" aria-label="Язык интерфейса"><option value="kk" lang="kk">Қазақша</option><option value="en" lang="en">English</option><option value="ru" lang="ru" selected>Русский</option></select></div>
   </header>
 
   <main>
@@ -90,4 +90,138 @@
 
   <dialog id="taskDialog"><button class="close" aria-label="Закрыть">×</button><div id="dialogBody"></div></dialog>
   <div class="toast" id="toast"><b>✓</b><span><strong id="toastTitle"></strong><small id="toastText"></small></span></div>
+  <style>
+    .language-tools { display:flex; align-items:center; justify-content:flex-end; gap:12px; }
+    #languageSelect { width:auto; min-width:110px; }
+    @media (min-width:801px) and (max-width:1150px) { .language-tools .demo { display:none; } }
+  </style>
+  <script>
+  (() => {
+    'use strict';
+    // Keep all language support in this file. Russian is the source language.
+    const translations = [
+      ['Язык интерфейса','Интерфейс тілі','Interface language'],
+      ['Основная навигация','Негізгі навигация','Main navigation'],
+      ['TaskForge — задачи, готовые к решению','TaskForge — шешуге дайын тапсырмалар','TaskForge — tasks ready to solve'],
+      ['TaskForge — платформа подготовки бизнес-задач и открытого выбора команд.','TaskForge — бизнес тапсырмаларын дайындау және командаларды ашық таңдау платформасы.','TaskForge — a platform for preparing business tasks and openly selecting teams.'],
+      ['Создать задачу','Тапсырма құру','Create task'],
+      ['Каталог','Каталог','Catalog'],['Отклики','Ұсыныстар','Proposals'],['Демо-режим','Демо режимі','Demo mode'],
+      ['Конструктор бизнес-задачи','Бизнес тапсырмасын құрастыру','Business task builder'],
+      ['Из идеи — в задачу,','Идеядан — тапсырмаға,','Turn an idea into a task,'],
+      ['готовую к работе.','жұмысқа дайын.','ready for action.'],
+      ['01 Черновик','01 Жоба','01 Draft'],['02 Уточнение','02 Нақтылау','02 Clarification'],['03 Публикация','03 Жариялау','03 Publication'],
+      ['Опишите потребность своими словами','Қажеттілікті өз сөзіңізбен сипаттаңыз','Describe your need in your own words'],
+      ['Можно коротко. AI найдёт пробелы и задаст уточняющие вопросы.','Қысқаша жазуға болады. AI жетіспейтін мәліметтерді анықтап, нақтылау сұрақтарын қояды.','Keep it brief. AI will identify gaps and ask follow-up questions.'],
+      ['Вставить пример','Мысал енгізу','Insert example'],['Описание задачи','Тапсырма сипаттамасы','Task description'],
+      ['Например: хотим сократить очереди в столовой университета...','Мысалы: университет асханасындағы кезекті қысқартқымыз келеді...','For example: we want to reduce queues at the university cafeteria...'],
+      ['✦ Локальная AI-модель','✦ Жергілікті AI моделі','✦ Local AI model'],['Проверить полноту','Толықтығын тексеру','Check completeness'],
+      ['✦ AI-анализ завершён','✦ AI талдауы аяқталды','✦ AI analysis complete'],['Нужно несколько уточнений','Бірнеше нақтылау қажет','A few details are needed'],
+      ['Спрашиваем только о недостающих данных и не добавляем факты от себя.','Тек жетіспейтін мәліметтерді сұраймыз, өзімізден дерек қоспаймыз.','We only ask for missing information and do not invent facts.'],
+      ['Собрать карточку','Карточка құрастыру','Build task card'],['Редактируемая карточка','Өңделетін карточка','Editable task card'],
+      ['Проверьте всё перед публикацией','Жарияламас бұрын бәрін тексеріңіз','Review everything before publishing'],
+      ['Название задачи *','Тапсырма атауы *','Task title *'],['Тематика','Тақырып','Industry'],
+      ['Образование','Білім беру','Education'],['Ритейл','Бөлшек сауда','Retail'],['Финтех','Финтех','Fintech'],['Экология','Экология','Environment'],['Городская среда','Қалалық орта','Urban environment'],['Другое','Басқа','Other'],
+      ['Контекст','Мәнмәтін','Context'],['Что происходит сейчас?','Қазір не болып жатыр?','What is happening now?'],
+      ['Потребность','Қажеттілік','Need'],['Что должно измениться?','Не өзгеруі керек?','What needs to change?'],
+      ['Пользователи','Пайдаланушылар','Users'],['Данные и материалы','Деректер мен материалдар','Data and materials'],
+      ['Ожидаемый результат','Күтілетін нәтиже','Expected outcome'],['Критерии успеха','Табыс критерийлері','Success criteria'],
+      ['Ограничения','Шектеулер','Constraints'],['Контакт и формат связи','Байланыс деректері мен форматы','Contact details and communication format'],
+      ['Я проверил(а) карточку и подтверждаю достоверность данных','Карточканы тексердім және деректердің дұрыстығын растаймын','I have reviewed the card and confirm the information is accurate'],
+      ['Опубликовать','Жариялау','Publish'],['Рейтинг готовности','Дайындық рейтингі','Readiness score'],
+      ['Баллы начисляются за заполненные и подтверждённые поля','Ұпайлар толтырылған және расталған өрістер үшін беріледі','Points are awarded for completed and confirmed fields'],
+      ['Текущий уровень','Ағымдағы деңгей','Current level'],['Черновик','Жоба','Draft'],['Начисление баллов','Ұпайларды есептеу','Score breakdown'],
+      ['Открытый пул','Ашық тізім','Open pool'],['Каталог задач','Тапсырмалар каталогы','Task catalog'],
+      ['Высокий рейтинг означает готовность задачи, а не престиж компании.','Жоғары рейтинг компания беделін емес, тапсырманың дайындығын білдіреді.','A high score reflects task readiness, not company prestige.'],
+      ['+ Новая задача','+ Жаңа тапсырма','+ New task'],['Поиск по задачам','Тапсырмаларды іздеу','Search tasks'],['Все темы','Барлық тақырыптар','All industries'],
+      ['Любая готовность','Кез келген дайындық','Any readiness'],['Приоритетная','Басым','Priority'],['Готовая','Дайын','Ready'],['Рабочая','Жұмысқа жарамды','Workable'],
+      ['Сначала высокий рейтинг','Алдымен жоғары рейтинг','Highest score first'],['Сначала новые','Алдымен жаңалары','Newest first'],['Больше откликов','Ұсынысы көп','Most proposals'],
+      ['Обновлено только что','Жаңа ғана жаңартылды','Just updated'],['Ничего не найдено','Ештеңе табылмады','No results found'],
+      ['Измените фильтры или создайте новую задачу.','Сүзгілерді өзгертіңіз немесе жаңа тапсырма құрыңыз.','Change the filters or create a new task.'],
+      ['Решение остаётся за человеком','Шешімді адам қабылдайды','People make the decision'],['Отклики команд','Командалардың ұсыныстары','Team proposals'],
+      ['Сравнивайте идеи и принимайте решение вручную. TaskForge никого не назначает автоматически.','Идеяларды салыстырып, шешімді өзіңіз қабылдаңыз. TaskForge ешкімді автоматты түрде тағайындамайды.','Compare ideas and make your own decision. TaskForge does not assign anyone automatically.'],
+      ['Закрыть','Жабу','Close'],['Контекст и потребность','Мәнмәтін мен қажеттілік','Context and need'],['Связь с бизнесом','Бизнеспен байланыс','Business contact'],
+      ['Карточка заполнена','Карточка толтырылды','Task card complete'],['Все критерии рейтинга подтверждены.','Рейтингтің барлық критерийлері расталды.','All scoring criteria are confirmed.'],
+      ['Создана','Құрылған күні','Created'],['Посмотреть задачу','Тапсырманы көру','View task'],['Данные','Деректер','Data'],['Связь','Байланыс','Contact'],
+      ['Предложить решение','Шешім ұсыну','Propose a solution'],['Опишите подход. Решение бизнес примет вручную.','Тәсіліңізді сипаттаңыз. Шешімді бизнес өзі қабылдайды.','Describe your approach. The business will decide manually.'],
+      ['Команда','Команда','Team'],['Срок','Мерзім','Timeline'],['Например, 3 недели','Мысалы, 3 апта','For example, 3 weeks'],['Идея решения','Шешім идеясы','Solution idea'],['План работы','Жұмыс жоспары','Work plan'],['Ссылка на прототип','Прототип сілтемесі','Prototype link'],['Отправить отклик →','Ұсыныс жіберу →','Send proposal →'],
+      ['Выбрана','Таңдалды','Selected'],['Выбрать','Таңдау','Select'],['Отклонена','Қабылданбады','Rejected'],['Отклонить','Қабылдамау','Reject'],
+      ['Откликов пока нет','Әзірге ұсыныстар жоқ','No proposals yet'],['Когда команда предложит решение, оно появится здесь.','Команда шешім ұсынғанда, ол осында пайда болады.','When a team proposes a solution, it will appear here.'],
+      ['Добавьте хотя бы одно предложение о задаче.','Тапсырма туралы кемінде бір сөйлем жазыңыз.','Add at least one sentence about the task.'],
+      ['Анализируем…','Талдау жүріп жатыр…','Analyzing…'],['Публикуем…','Жарияланып жатыр…','Publishing…'],['Отправляем…','Жіберіліп жатыр…','Sending…'],
+      ['Нужны название, контекст и потребность.','Атауы, мәнмәтіні және қажеттілігі керек.','Title, context and need are required.'],['Подтвердите достоверность данных.','Деректердің дұрыстығын растаңыз.','Confirm the information is accurate.'],
+      ['Заполните идею, план и срок.','Идеяны, жоспарды және мерзімді толтырыңыз.','Fill in the idea, plan and timeline.'],
+      ['Задача опубликована','Тапсырма жарияланды','Task published'],['Отклик отправлен','Ұсыныс жіберілді','Proposal sent'],['Он появился в кабинете бизнеса.','Ол бизнес кабинетінде пайда болды.','It is now visible in the business dashboard.'],
+      ['Команда выбрана','Команда таңдалды','Team selected'],['Отклик отклонён','Ұсыныс қабылданбады','Proposal rejected'],['Решение бизнеса сохранено.','Бизнес шешімі сақталды.','The business decision was saved.'],
+      ['Ошибка','Қате','Error'],['Ошибка запроса','Сұрау қатесі','Request failed'],['Сервер недоступен','Сервер қолжетімсіз','Server unavailable'],['Запустите проект командой python app.py.','Жобаны python app.py командасымен іске қосыңыз.','Start the project with python app.py.']
+    ];
+    const dictionary = new Map(translations.map(row => [row[0], row]));
+    const sourceText = new Map(translations.flatMap(row => row.map(text => [text, row[0]])));
+    const sources = new WeakMap();
+    const selector = document.getElementById('languageSelect');
+    let language = 'ru';
+    try { const saved = localStorage.getItem('taskforge.language'); if (['ru','kk','en'].includes(saved)) language = saved; } catch (_) {}
+    const dynamicUI = '#level, #filled, #breakdown, #tip, #resultCount, .error, #toastTitle, #toastText, #analyzeBtn, #taskForm button, #proposalForm button, #industry option, .card .tag, .card .status, .metric small, .card .open, .detail small, .proposal-form h3, .proposal-form > p, .proposal-form .field, .decision-buttons button, #decisionList > .empty';
+    function translate(text) {
+      const index = language === 'kk' ? 1 : language === 'en' ? 2 : 0;
+      if (dictionary.has(text)) return dictionary.get(text)[index];
+      if (!index) return text;
+      let match = text.match(/^(\d+) из 7$/);
+      if (match) return index === 1 ? `${match[1]} / 7` : `${match[1]} of 7`;
+      match = text.match(/^(\d+) задач(?:а|и)?$/);
+      if (match) return index === 1 ? `${match[1]} тапсырма` : `${match[1]} task${match[1] === '1' ? '' : 's'}`;
+      match = text.match(/^Можно добавить \+(\d+)$/);
+      if (match) return index === 1 ? `Тағы +${match[1]} ұпай алуға болады` : `Add +${match[1]} points`;
+      match = text.match(/^Заполните: (.+)\.$/);
+      if (match) { const row = translations.find(row => row[0].toLowerCase() === match[1]); return row ? (index === 1 ? `Толтырыңыз: ${row[index]}.` : `Complete: ${row[index]}.`) : text; }
+      match = text.match(/^Рейтинг (\d+)\/100\. Команды уже могут откликнуться\.$/);
+      if (match) return index === 1 ? `Рейтинг ${match[1]}/100. Командалар ұсыныс жібере алады.` : `Score ${match[1]}/100. Teams can now submit proposals.`;
+      return text;
+    }
+    function update(root, initial = false) {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        const node = walker.currentNode, parent = node.parentElement;
+        if (!parent || parent.closest('script, style, #languageSelect, textarea, [name="team_id"]')) continue;
+        if (!initial && !sources.has(node) && !parent.closest(dynamicUI)) continue;
+        const previous = sources.get(node);
+        const raw = previous && node.nodeValue === previous.output ? previous.original : node.nodeValue;
+        const original = raw.replace(/\S(?:[\s\S]*\S)?/, text => sourceText.get(text) || text);
+        // Option values must remain stable for the API and catalog filters.
+        if (parent.tagName === 'OPTION' && !parent.hasAttribute('value')) parent.value = original.trim();
+        const output = original.replace(/\S(?:[\s\S]*\S)?/, text => translate(text));
+        sources.set(node, {original, output});
+        if (node.nodeValue !== output) node.nodeValue = output;
+      }
+    }
+    const attributes = [];
+    document.querySelectorAll('[placeholder], [aria-label], [title], meta[name="description"]').forEach(element => {
+      for (const name of ['placeholder','aria-label','title','content']) if (element.hasAttribute(name)) attributes.push([element,name,element.getAttribute(name)]);
+    });
+    const observer = new MutationObserver(() => {
+      observer.disconnect();
+      update(document.body);
+      document.querySelectorAll('#proposalForm [placeholder]').forEach(element => {
+        if (!attributes.some(entry => entry[0] === element)) attributes.push([element,'placeholder',element.getAttribute('placeholder')]);
+      });
+      attributes.forEach(([element,name,text]) => element.setAttribute(name,translate(text)));
+      observe();
+    });
+    function observe() { observer.observe(document.body, {childList:true, characterData:true, subtree:true}); }
+    function apply(initial = false) {
+      observer.disconnect();
+      document.documentElement.lang = language;
+      selector.value = language;
+      update(document.body, initial);
+      document.title = translate(translations[2][0]);
+      attributes.forEach(([element,name,text]) => element.setAttribute(name,translate(text)));
+      observe();
+    }
+    selector.addEventListener('change', () => {
+      language = selector.value;
+      try { localStorage.setItem('taskforge.language', language); } catch (_) {}
+      apply();
+    });
+    apply(true);
+  })();
+  </script>
 </body></html>
